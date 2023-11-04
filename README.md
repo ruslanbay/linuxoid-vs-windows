@@ -16,9 +16,9 @@
 Для начала скачаем установочный iso с [официального сайта Microsoft](https://www.microsoft.com/software-download/windows11). Я буду работать со следующим файлом:
 
 ```
-Win11_22H2_EnglishInternational_x64v2.iso
-SHA256: FF27ACC3D5F407F55C6440C56A2358F6EE5DBEA4C77880BA2CAD9CB1E54EFB35
-SIZE: 5.42 GB
+Win11_23H2_EnglishInternational_x64.iso
+SHA256: 0EEA13C537E39CD1631B1758CD98847CF0D88BD0C32A8D69D9A02723AE79A612
+SIZE: 6.22 GB
 ```
 
 Далее смонтируем iso-образ и из каталога `sources` скопируем файл `install.wim`. С этой копией мы и будем работать далее. В моём случае полный путь выглядит так: `E:\user_files\install.wim`. Для работы с утилитой DISM нам необходимо открыть Windows Terminal или консоль PowerShell с правами Администратора. Первое что мы сделаем - посмотрим список редакций Windows, которые доступны для установки:
@@ -29,62 +29,62 @@ Dism /Get-ImageInfo /ImageFile:"E:\user_files\install.wim"
 Deployment Image Servicing and Management tool
 Version: 10.0.22621.1
 
-Details for image : E:\user_files\install.wim
+Details for image : F:\sources\install.wim
 
 Index : 1
 Name : Windows 11 Home
 Description : Windows 11 Home
-Size : 16,452,996,820 bytes
+Size : 18,358,026,779 bytes
 
 Index : 2
 Name : Windows 11 Home N
 Description : Windows 11 Home N
-Size : 15,784,152,377 bytes
+Size : 17,679,716,517 bytes
 
 Index : 3
 Name : Windows 11 Home Single Language
 Description : Windows 11 Home Single Language
-Size : 16,454,994,553 bytes
+Size : 18,342,740,416 bytes
 
 Index : 4
 Name : Windows 11 Education
 Description : Windows 11 Education
-Size : 16,735,779,598 bytes
+Size : 18,626,334,585 bytes
 
 Index : 5
 Name : Windows 11 Education N
 Description : Windows 11 Education N
-Size : 16,052,156,243 bytes
+Size : 17,939,693,652 bytes
 
 Index : 6
 Name : Windows 11 Pro
 Description : Windows 11 Pro
-Size : 19,122,796,423 bytes
+Size : 18,641,679,997 bytes
 
 Index : 7
 Name : Windows 11 Pro N
 Description : Windows 11 Pro N
-Size : 16,066,184,230 bytes
+Size : 17,974,447,399 bytes
 
 Index : 8
 Name : Windows 11 Pro Education
 Description : Windows 11 Pro Education
-Size : 16,735,729,808 bytes
+Size : 18,626,284,795 bytes
 
 Index : 9
 Name : Windows 11 Pro Education N
 Description : Windows 11 Pro Education N
-Size : 16,052,105,553 bytes
+Size : 17,939,642,962 bytes
 
 Index : 10
 Name : Windows 11 Pro for Workstations
 Description : Windows 11 Pro for Workstations
-Size : 16,735,754,703 bytes
+Size : 18,626,309,690 bytes
 
 Index : 11
 Name : Windows 11 Pro N for Workstations
 Description : Windows 11 Pro N for Workstations
-Size : 16,052,130,898 bytes
+Size : 17,939,668,307 bytes
 ```
 
 Я собираюсь установить Windows 11 Pro. Чтобы посмотреть дополнительную информацию об этой редакции выполним ту же самую команду с параметром `/index:6`:
@@ -94,22 +94,22 @@ Dism /Get-ImageInfo /ImageFile:"E:\user_files\install.wim" /index:6
 Index : 6
 Name : Windows 11 Pro
 Description : Windows 11 Pro
-Size : 16’733’566’482 bytes
+Size : 18,641,679,997 bytes
 WIM Bootable : No
 Architecture : x64
 Hal : <undefined>
 Version : 10.0.22621
-ServicePack Build : 1702
+ServicePack Build : 2428
 ServicePack Level : 0
 Edition : Professional
 Installation : Client
 ProductType : WinNT
 ProductSuite : Terminal Server
 System Root : WINDOWS
-Directories : 24898
-Files : 107297
-Created : 05/05/2023 - 15:07:25
-Modified : 05/05/2023 - 15:56:54
+Directories : 26826
+Files : 113746
+Created : 01/10/2023 - 13:05:52
+Modified : 01/10/2023 - 13:54:01
 Languages :
         en-GB (Default)
 ```
@@ -121,11 +121,11 @@ Dism /Mount-Image /ImageFile:"E:\user_files\install.wim" /index:6 /MountDir:"D:\
 ```
 
 #### Установка обновлений
-Первое что мы сделаем - добавим в образ обновления операционной системы. Каждый месяц Microsoft выпускает пакеты Cumulative Update, которые содержат обновления безопасности и новые фичи. Чтобы обновить систему до актуального состояния необходимо установить только самый последний Cumulative Update Package (на момент написания этой инструкции - август 2023). Перейдём в [Microsoft Update Catalog](https://www.catalog.update.microsoft.com/Search.aspx?q=Cumulative+Update+for+Windows+11+for+x64) и скачаем обновления для Windows и .NET Framework. Для установки обновлений выполним следующую команду:
+Первое что мы сделаем - добавим в образ обновления операционной системы. Каждый месяц Microsoft выпускает пакеты Cumulative Update, которые содержат обновления безопасности и новые фичи. Чтобы обновить систему до актуального состояния необходимо установить только самый последний Cumulative Update Package. Перейдём в [Microsoft Update Catalog](https://www.catalog.update.microsoft.com/Search.aspx?q=Cumulative+Update+for+Windows+11+for+x64) и скачаем обновления для Windows и .NET Framework. Для установки обновлений выполним следующую команду:
 
 ```PowerShell
-Dism /Image:"D:\image" /Add-Package /PackagePath:"E:\user_files\2023-08 Cumulative Update for Windows 11 Version 22H2 for x64-based Systems (KB5029351).msu"
-Dism /Image:"D:\image" /Add-Package /PackagePath:"E:\user_files\2023-08 Cumulative Update for .NET Framework 3.5 and 4.8.1 for Windows 11, version 22H2 for x64 (KB5028948).msu"
+Dism /Image:"D:\image" /Add-Package /PackagePath:"E:\user_files\2023-10 Cumulative Update for Windows 11 Version 23H2 for x64-based Systems (KB5031354).msu"
+Dism /Image:"D:\image" /Add-Package /PackagePath:"E:\user_files\2023-10 Cumulative Update for .NET Framework 3.5 and 4.8.1 for Windows 11, version 23H2 for x64 (KB5030651).msu"
 ```
 
 #### Получаем список активированных фич
@@ -274,24 +274,20 @@ Dism /Image:"D:\image" /Remove-Capability /CapabilityName:Print.Management.Conso
 #### Получаем список предустановленных пакетов
 ```PowerShell
 Dism /Image:"D:\image" /Get-Packages | Select-String -pattern "Package Identity : .+"
-Package Identity : Microsoft-OneCore-ApplicationModel-Sync-Desktop-FOD-Package~31bf3856ad364e35~amd64~~10.0.22621.1702
-Package Identity : Microsoft-OneCore-DirectX-Database-FOD-Package~31bf3856ad364e35~amd64~~10.0.22621.1702
-Package Identity : Microsoft-Windows-Client-LanguagePack-Package~31bf3856ad364e35~amd64~en-GB~10.0.22621.1702
+Package Identity : Microsoft-OneCore-DirectX-Database-FOD-Package~31bf3856ad364e35~amd64~~10.0.22621.2428
+Package Identity : Microsoft-Windows-Client-LanguagePack-Package~31bf3856ad364e35~amd64~en-GB~10.0.22621.2428
 Package Identity : Microsoft-Windows-FodMetadata-Package~31bf3856ad364e35~amd64~~10.0.22621.1
 Package Identity : Microsoft-Windows-Foundation-Package~31bf3856ad364e35~amd64~~10.0.22621.1
-Package Identity : Microsoft-Windows-Kernel-LA57-FoD-Package~31bf3856ad364e35~amd64~~10.0.22621.1702
-Package Identity : Microsoft-Windows-LanguageFeatures-Basic-en-gb-Package~31bf3856ad364e35~amd64~~10.0.22621.1702
-Package Identity : Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~amd64~en-GB~10.0.22621.1
-Package Identity : Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~amd64~~10.0.22621.1702
-Package Identity : Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~wow64~en-GB~10.0.22621.1
-Package Identity : Microsoft-Windows-PowerShell-ISE-FOD-Package~31bf3856ad364e35~wow64~~10.0.22621.1
+Package Identity : Microsoft-Windows-Kernel-LA57-FoD-Package~31bf3856ad364e35~amd64~~10.0.22621.2428
+Package Identity : Microsoft-Windows-LanguageFeatures-Basic-en-gb-Package~31bf3856ad364e35~amd64~~10.0.22621.2428
 Package Identity : Microsoft-Windows-WMIC-FoD-Package~31bf3856ad364e35~amd64~en-GB~10.0.22621.1
-Package Identity : Microsoft-Windows-WMIC-FoD-Package~31bf3856ad364e35~amd64~~10.0.22621.1702
+Package Identity : Microsoft-Windows-WMIC-FoD-Package~31bf3856ad364e35~amd64~~10.0.22621.2428
 Package Identity : Microsoft-Windows-WMIC-FoD-Package~31bf3856ad364e35~wow64~en-GB~10.0.22621.1
 Package Identity : Microsoft-Windows-WMIC-FoD-Package~31bf3856ad364e35~wow64~~10.0.22621.1
-Package Identity : Package_for_DotNetRollup_481~31bf3856ad364e35~amd64~~10.0.9139.2
-Package Identity : Package_for_RollupFix~31bf3856ad364e35~amd64~~22621.1702.1.9
-Package Identity : Package_for_ServicingStack_1626~31bf3856ad364e35~amd64~~22621.1626.1.0
+Package Identity : Package_for_DotNetRollup_481~31bf3856ad364e35~amd64~~10.0.9186.2
+Package Identity : Package_for_KB5027397~31bf3856ad364e35~amd64~~22621.2355.1.1
+Package Identity : Package_for_RollupFix~31bf3856ad364e35~amd64~~22621.2428.1.8
+Package Identity : Package_for_ServicingStack_2423~31bf3856ad364e35~amd64~~22621.2423.1.1
 ```
 
 #### Получаем список пакетов, которые устанавливаются автоматически для каждого нового пользователя
@@ -395,12 +391,12 @@ Dism /Image:"D:\image" /Optimize-ProvisionedAppxPackages
 
 ```PowerShell
 cd E:\user_files\
-msiexec /a SurfacePro7_Win11_22000_23.072.24526.0.msi TargetDir=D:\SurfacePro7_Win11_22000_23.072.24526.0 /qn
+msiexec /a SurfacePro7_Win11_22000_23.101.6978.0.msi TargetDir=E:\user_files\SurfacePro7_Win11_22000_23.101.6978.0 /qn
 ```
 
 Наконец, добавляем распакованные драйвера в образ:
 ```PowerShell
-Dism /Image:"D:\image" /Add-Driver /Driver:"D:\SurfacePro7_Win11_22000_23.072.24526.0\SurfaceUpdate" /Recurse
+Dism /Image:"D:\image" /Add-Driver /Driver:"E:\user_files\SurfacePro7_Win11_22000_23.101.6978.0\SurfaceUpdate" /Recurse
 ```
 
 #### Настройка операционной системы
@@ -782,7 +778,7 @@ Dism /Image:"D:\image" /Apply-Unattend:E:\user_files\ApplyUnattend.xml
 ```
 
 ##### Задаём параметры MS Edge
-Вы можете скопировать конфигурационный файл `Preferences` из каталога `%USERNAME%\AppData\Local\Microsoft\Edge\User Data\Default\Preferences` и поместить его папку пользователя `Default`. Таким образом, все новые пользователи системы будут иметь идентичные настройки браузера.
+Вы можете скопировать конфигурационный файл `Preferences` из каталога `%USERNAME%\AppData\Local\Microsoft\Edge\User Data\Default\` и поместить его папку пользователя `Default`. Таким образом, все новые пользователи системы будут иметь идентичные настройки браузера.
 ```PowerShell
 New-Item -Path  "D:\image\Users\Default\AppData\Local\Microsoft\Edge\User Data\Default\" -ItemType directory
 cp "E:\user_files\edge_Preferences.json" "D:\image\Users\Default\AppData\Local\Microsoft\Edge\User Data\Default\Preferences"
@@ -854,9 +850,9 @@ assign letter=v
 exit
 ```
 
-Развернём на виртуальном диске образ install.wim, который мы подготовили ранее:
+Развернём на виртуальном диске образ install.wim, который мы подготовили ранее. Добавим опцию '/compact', чтобы развернуть файлы операционной системы в сжатом виде и высвободить дополнительное дисковое пространство ([режим Compact OS](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/compact-os?view=windows-11)):
 ```PowerShell
-Dism /Apply-Image /ImageFile:"E:\user_files\install.wim" /index:6 /ApplyDir:V:\
+Dism /Apply-Image /ImageFile:"E:\user_files\install.wim" /index:6 /ApplyDir:V:\ /compact
 ```
 
 Смонтируем скрытый загрузочный раздел UEFI:
@@ -880,6 +876,17 @@ bcdboot v:\windows /s S: /f UEFI
 Теперь после включения компьютер будет по умолчанию загружаться с виртуального диска `D:\win11x64pro.vhdx`
 
 Перезагружаем компьютер. Система попросит ввести имя пользователя, пароль и задать прочие настройки. Сразу после первого входа в систему необходимо установить обновления для [Microsoft Defender Antivirus](https://www.microsoft.com/en-us/wdsi/definitions/) и [Microsoft Edge](https://www.catalog.update.microsoft.com/Search.aspx?q=Microsoft+Edge-Extended+Stable+Channel+Version). Если открыть браузер до установки обновлений, то [параметры, которые мы задали ранее](https://github.com/ruslanbay/linuxoid-vs-windows/blob/main/README.md#%D0%B7%D0%B0%D0%B4%D0%B0%D1%91%D0%BC-%D0%BF%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80%D1%8B-ms-edge), могут не примениться.
+
+#### Отключаем Reserved Storage
+
+> [!NOTE]
+> TODO: Добавить эту команду в [unnatended.xml
+](https://learn.microsoft.com/en-us/windows-hardware/customize/desktop/unattend/microsoft-windows-shell-setup-firstlogoncommands)
+
+Чтобы освободить примерно 6 GB дискового пространства [отключим Reserved Storage](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/dism-storage-reserve?view=windows-11):
+```PowerShell
+Dism /Online /Set-ReservedStorageState /State:disabled
+```
 
 Установка системы завершена!
 
