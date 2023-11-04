@@ -494,7 +494,6 @@ reg add  HKLM\OFFLINE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\C
 reg add  HKLM\OFFLINE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam                       /v Value /t REG_SZ /d Deny /f
 reg add  HKLM\OFFLINE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData                     /v Value /t REG_SZ /d Deny /f
 reg add  HKLM\OFFLINE\Policies\Microsoft\Camera                     /v AllowCamera                                      /t REG_DWORD /d 0 /f
-reg add  HKLM\OFFLINE\Policies\Microsoft\Edge                       /v EnableMediaRouter                                /t REG_DWORD /d 0 /f
 reg add  HKLM\OFFLINE\Policies\Microsoft\Windows\AdvertisingInfo    /v DisabledByGroupPolicy                            /t REG_DWORD /d 1 /f
 reg add  HKLM\OFFLINE\Policies\Microsoft\Windows\AppPrivacy         /v LetAppsAccessMicrophone                          /t REG_DWORD /d 2 /f
 reg add  HKLM\OFFLINE\Policies\Microsoft\Windows\AppPrivacy         /v LetAppsAccessMicrophone_ForceAllowTheseApps      /t REG_MULTI_SZ /d \0 /f
